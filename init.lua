@@ -259,7 +259,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- Theme configuration
 require('onedark').setup {
-    style = 'cool'
+    style = 'dark'
 }
 require('onedark').load()
 
@@ -507,3 +507,7 @@ cmp.setup {
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+vim.cmd.set("tabstop=4")
+vim.cmd.set("shiftwidth=4")
+vim.cmd.set("expandtab")
+vim.cmd.set("smartindent")
