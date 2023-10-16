@@ -1,41 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, and understand
-  what your configuration is doing.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-  And then you can explore or search through `:help lua-guide`
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
@@ -97,7 +59,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',          opts = {} },
   { -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -112,25 +74,24 @@ require('lazy').setup({
     },
   },
 
-  { -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'onedark'
-    end,
+  { -- Vim Devicons installation
+    'ryanoasis/vim-devicons',
+  },
+
+  { -- Vim VSCode Theme
+    'Mofiqul/vscode.nvim',
   },
 
   { -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
+    requires = { 'nvim-tree/nvim-web-devicons', opt = true },
     -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = true,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
+  },
+
+  { -- Set bufferline as BufferSwitcher
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
   },
 
   { -- Add indentation guides even on blank lines
@@ -144,7 +105,7 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',         opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
   { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
@@ -171,6 +132,31 @@ require('lazy').setup({
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   },
+
+
+  {
+    "ray-x/go.nvim",
+    dependencies = { -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("go").setup()
+    end,
+    event = { "CmdlineEnter" },
+    ft = { "go", 'gomod' },
+    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+  },
+
+  -- Go Delve Integration
+  'sebdah/vim-delve',
+
+  -- Git Copilot
+  'github/copilot.vim',
+
+  -- Plugin for interacting with PostgreSQL
+  'harrisoncramer/psql',
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -236,6 +222,140 @@ vim.o.smartindent = true
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
 
+-- VSCode colorscheme
+local c = require('vscode.colors').get_colors()
+require('vscode').setup({
+  -- Alternatively set style in setup
+  style = 'light',
+
+  -- Enable transparent background
+  transparent = true,
+
+  -- Enable italic comment
+  italic_comments = true,
+
+  -- Disable nvim-tree background color
+  disable_nvimtree_bg = true,
+
+  -- Override colors (see ./lua/vscode/colors.lua)
+  color_overrides = {
+    -- LightTheme
+    vscLineNumber = '#222222',
+    -- DarkTheme
+    -- vscLineNumber = '#CCCCCC',
+  },
+
+  -- Override highlight groups (see ./lua/vscode/theme.lua)
+  group_overrides = {
+    -- this supports the same val table as vim.api.nvim_set_hl
+    -- use colors from this colorscheme by requiring vscode.colors!
+    Cursor = { fg = c.vscDarkBlue, bg = c.vscLightGreen, bold = true },
+  }
+})
+require('vscode').load()
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'vscode',
+    component_separators = { left = '', right = '' },
+    section_separators = { left = '', right = '' },
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { 'branch', 'diff', 'diagnostics' },
+    lualine_c = { 'filename' },
+    lualine_x = { 'encoding', 'fileformat', 'filetype' },
+    lualine_y = { 'progress' },
+    lualine_z = { 'location' }
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = { 'filename' },
+    lualine_x = { 'location' },
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
+
+require("bufferline").setup({
+  options = {
+    buffer_close_icon = "",
+    close_command = "bdelete %d",
+    close_icon = "",
+    indicator = {
+      style = "icon",
+      icon = " ",
+    },
+    left_trunc_marker = "",
+    modified_icon = "●",
+    offsets = { { filetype = "NvimTree", text = "EXPLORER", text_align = "center" } },
+    right_mouse_command = "bdelete! %d",
+    right_trunc_marker = "",
+    show_close_icon = false,
+    show_tab_indicators = true,
+  },
+  highlights = {
+    fill = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "StatusLineNC" },
+    },
+    background = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "StatusLine" },
+    },
+    buffer_visible = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "Normal" },
+    },
+    buffer_selected = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "Normal" },
+    },
+    separator = {
+      fg = { attribute = "bg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "StatusLine" },
+    },
+    separator_selected = {
+      fg = { attribute = "fg", highlight = "Special" },
+      bg = { attribute = "bg", highlight = "Normal" },
+    },
+    separator_visible = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "StatusLineNC" },
+    },
+    close_button = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "StatusLine" },
+    },
+    close_button_selected = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "Normal" },
+    },
+    close_button_visible = {
+      fg = { attribute = "fg", highlight = "Normal" },
+      bg = { attribute = "bg", highlight = "Normal" },
+    },
+  },
+})
+
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
@@ -258,10 +378,10 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Theme configuration
-require('onedark').setup {
-    style = 'dark'
-}
-require('onedark').load()
+-- require('onedark').setup {
+  -- style = 'darker'
+-- }
+-- require('onedark').load()
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
@@ -411,6 +531,8 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
+
+  nmap('<leader>fr', vim.lsp.buf.format, '[F]o[r]mat')
 end
 
 -- Enable the following language servers
@@ -504,6 +626,41 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- Neotree config
+vim.api.nvim_set_keymap("n", "<leader>nt", ':Neotree float', { desc = "Neotree" })
+
+-- DAP setup
+-- require('dap-go').setup()
+
+-- vim.fn.sign_define('DapBreakpoint',{ text ='🟥', texthl ='', linehl ='', numhl =''})
+-- vim.fn.sign_define('DapStopped',{ text ='▶️', texthl ='', linehl ='', numhl =''})
+
+-- vim.keymap.set('n', '<F5>', require 'dap'.continue)
+-- vim.keymap.set('n', '<F10>', require 'dap'.step_over)
+-- vim.keymap.set('n', '<F11>', require 'dap'.step_into)
+-- vim.keymap.set('n', '<F12>', require 'dap'.step_out)
+-- vim.keymap.set('n', '<leader>b', require 'dap'.toggle_breakpoint)
+-- vim.keymap.set('n', '<leader>b', require 'dap'.toggle_breakpoint, { desc = "DBG: Toggle Breakpoint" })
+
+-- Copilot setup
+vim.g.copilot_no_tab_map = true
+vim.api.nvim_set_keymap("i", "<C-J>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+vim.g.copilot_filetypes = {
+  ["*"] = false,
+  ["javascript"] = true,
+  ["typescript"] = true,
+  ["lua"] = false,
+  ["rust"] = true,
+  ["c"] = true,
+  ["c#"] = true,
+  ["c++"] = true,
+  ["go"] = true,
+  ["python"] = true,
+}
+
+require('psql').setup({})
+vim.keymap.set('n', '<leader>P', require 'psql'.query_paragraph, { desc = "PSQL: Queries using the current paragraph" })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
