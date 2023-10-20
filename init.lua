@@ -637,7 +637,8 @@ cmp.setup {
 }
 
 -- Neotree config
-vim.api.nvim_set_keymap("n", "<leader>nt", ':Neotree float', { desc = "Neotree" })
+vim.keymap.set('n', '<leader>nf', ':Neotree float', { desc = "[N]eotree [F]loat" })
+vim.keymap.set('n', '<leader>nl', ':Neotree left', { desc = "[N]eotree [L]eft" })
 
 -- DAP setup
 -- require('dap-go').setup()
@@ -669,7 +670,10 @@ vim.g.copilot_filetypes = {
 }
 
 require('psql').setup({})
-vim.keymap.set('n', '<leader>P', require 'psql'.query_paragraph, { desc = "PSQL: Queries using the current paragraph" })
+vim.keymap.set('n', '<leader>PP', require 'psql'.query_paragraph, { desc = "[P]SQL: Queries current [P]aragraph" })
+vim.keymap.set('n', '<leader>PL', require 'psql'.query_current_line, { desc = "[P]SQL: Queries current [L]ine" })
+vim.keymap.set('n', '<leader>PS', require 'psql'.query_selection, { desc = "[P]SQL: Queries [S]election" })
+vim.keymap.set('n', '<leader>PY', require 'psql'.yank_cell, { desc = "[P]SQL: In results [Y]anks the current cell" })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
