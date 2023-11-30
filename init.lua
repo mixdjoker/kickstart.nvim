@@ -192,6 +192,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -235,7 +236,7 @@ vim.o.shiftwidth = 2
 local c = require('vscode.colors').get_colors()
 require('vscode').setup({
   -- Alternatively set style in setup
-  style = 'light',
+  style = 'dark',
 
   -- Enable transparent background
   transparent = true,
@@ -249,9 +250,9 @@ require('vscode').setup({
   -- Override colors (see ./lua/vscode/colors.lua)
   color_overrides = {
     -- LightTheme
-    vscLineNumber = '#222222',
+    -- vscLineNumber = '#222222',
     -- DarkTheme
-    -- vscLineNumber = '#CCCCCC',
+    vscLineNumber = '#CCCCCC',
   },
 
   -- Override highlight groups (see ./lua/vscode/theme.lua)
