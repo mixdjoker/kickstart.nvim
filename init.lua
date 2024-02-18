@@ -162,7 +162,7 @@ require('lazy').setup({
   'sebdah/vim-delve',
 
   -- Git Copilot
-  'github/copilot.vim',
+  -- 'github/copilot.vim',
 
   -- Plugin for interacting with PostgreSQL
   'harrisoncramer/psql',
@@ -431,6 +431,9 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
+  modules = {},
+  sync_install = true,
+  ignore_install = {},
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim', 'html', 'javascript' },
 
@@ -564,7 +567,7 @@ local servers = {
     },
   },
 
-  clangd = {},
+  -- clangd = {},
   gopls = {},
   cssls = {},
   cmake = {},
@@ -582,7 +585,15 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Setup mason so it can manage external tooling
-require('mason').setup()
+require('mason').setup({
+  ui = {
+    icons = {
+      package_installed = "✓",
+      package_pending = "➜",
+      package_uninstalled = "✗"
+    }
+  }
+})
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
@@ -602,15 +613,15 @@ mason_lspconfig.setup_handlers {
 }
 
 require('lspconfig').html.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "html", "templ" },
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { "html", "templ" },
 })
 
 require('lspconfig').htmx.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "html", "templ" },
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { "html", "templ" },
 })
 
 -- nvim-cmp setup
@@ -658,9 +669,12 @@ cmp.setup {
   },
 }
 
+-- Echo current file path
+vim.api.nvim_set_keymap('n', '<leader>p', [[:echo expand('%:p')<CR>]], { desc = "[P]ath current file", noremap = true, silent = true })
+
 -- Neotree config
-vim.keymap.set('n', '<leader>nf', ':Neotree float', { desc = "[N]eotree [F]loat" })
-vim.keymap.set('n', '<leader>nl', ':Neotree left', { desc = "[N]eotree [L]eft" })
+vim.keymap.set('n', '<leader>nf', ':Neotree float<CR>', { desc = "[N]eotree [F]loat" })
+vim.keymap.set('n', '<leader>nl', ':Neotree left<CR>', { desc = "[N]eotree [L]eft" })
 
 -- DAP setup
 -- require('dap-go').setup()
@@ -676,7 +690,7 @@ vim.keymap.set('n', '<leader>nl', ':Neotree left', { desc = "[N]eotree [L]eft" }
 -- vim.keymap.set('n', '<leader>b', require 'dap'.toggle_breakpoint, { desc = "DBG: Toggle Breakpoint" })
 
 -- Copilot setup
-vim.g.copilot_no_tab_map = true
+--[[ vim.g.copilot_no_tab_map = true
 vim.api.nvim_set_keymap("i", "<C-J>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 vim.g.copilot_filetypes = {
   ["*"] = false,
@@ -690,7 +704,7 @@ vim.g.copilot_filetypes = {
   ["go"] = true,
   ["python"] = true,
   ["html"] = true,
-}
+} ]]
 
 require('psql').setup({})
 vim.keymap.set('n', '<leader>PP', require 'psql'.query_paragraph, { desc = "[P]SQL: Queries current [P]aragraph" })
