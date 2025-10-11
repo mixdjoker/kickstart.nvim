@@ -1,0 +1,27 @@
+-- CodeCompanion adds an AI layer to your development workflow.  It lets
+-- you invoke OpenAI models (or other providers) to refactor code or
+-- generate suggestions.  Configure the provider here; you can change
+-- `model` to another supported model at any time.  See
+-- https://github.com/olimorris/codecompanion.nvim for details.
+-- return {
+--   'olimorris/codecompanion.nvim',
+--   dependencies = { 'nvim-lua/plenary.nvim', 'nvim-treesitter/nvim-treesitter' },
+--   opts = {
+--     strategies = {
+--       chat = { adapter = 'openai_responses' }, -- можно и "openai", но responses — официальный новый API
+--       inline = { adapter = 'openai_responses' },
+--     },
+--     adapters = {
+--       openai_responses = function()
+--         return require('codecompanion.adapters').extend('openai_responses', {
+--           env = {
+--             api_key = 'OPENAI_API_KEY', -- читается из окружения
+--           },
+--           schema = {
+--             model = { default = 'gpt-5-mini' }, -- <- твоя модель
+--           },
+--         })
+--       end,
+--     },
+--   },
+-- }

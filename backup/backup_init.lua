@@ -149,7 +149,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',    opts = {} },
 
   -- Adds git related signs to the gutter, as well as utilities for managing changes
   {
@@ -199,7 +199,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       require('telescope').setup {
@@ -363,14 +363,6 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {},
-        -- Python language server
-        pyright = {},
-        -- Bash language server
-        bashls = {},
-        -- Ansible language server (uses yamlls and ansiblels underneath)
-        ansiblels = {},
-        -- YAML language server
-        yamlls = {},
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -414,13 +406,6 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format lua code
-        'gofumpt', -- Go formatter
-        'goimports', -- Go import organizer
-        'ruff', -- Python linter/formatter
-        'black', -- Python formatter
-        'shfmt', -- Shell script formatter
-        'prettier', -- Prettier for YAML/HTML/CSS/etc.
-        -- You can add more formatters here if needed
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -454,16 +439,13 @@ require('lazy').setup({
         }
       end,
       formatters_by_ft = {
-        lua = { 'stylua' },
-        python = { 'ruff', 'black' },
-        go = { 'gofumpt', 'goimports' },
-        bash = { 'shfmt' },
-        sh = { 'shfmt' },
-        yaml = { 'prettier' },
-        html = { 'prettier' },
-        -- You can use a sub-list to tell conform to run *until* a formatter is found.
-        -- For example:
-        -- javascript = { { 'prettierd', 'prettier' } },
+        -- lua = { 'stylua' },
+        -- Conform can also run multiple formatters sequentially
+        -- python = { "isort", "black" },
+        --
+        -- You can use a sub-list to tell conform to run *until* a formatter
+        -- is found.
+        -- javascript = { { "prettierd", "prettier" } },
       },
     },
   },
@@ -488,16 +470,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          {
-            'rafamadriz/friendly-snippets',
-            config = function()
-              -- Load friendly-snippets lazily.  This loads a large set of
-              -- community maintained snippets for many languages, including Go,
-              -- Python, Bash, HTML, and YAML.  They will automatically extend
-              -- LuaSnip's snippet library when a filetype is active.
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
-          },
+          -- {
+          --   'rafamadriz/friendly-snippets',
+          --   config = function()
+          --     require('luasnip.loaders.from_vscode').lazy_load()
+          --   end,
+          -- },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -578,9 +556,9 @@ require('lazy').setup({
   },
 
   {
-    'catppuccin/nvim',
-    name = 'catppuccin',
-    priority = 900,
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 900
   },
 
   { -- You can easily change to a different colorscheme.
@@ -603,60 +581,6 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
-  -- Structural search and replace plugin.  Provides a structural search and
-  -- replace UI that works across files.  This is extremely handy when you
-  -- want to refactor code patterns across your project (e.g. rename a
-  -- function and its usage in templates).  Trigger it with `<leader>rs`.
-  {
-    'cshuaimin/ssr.nvim',
-    event = 'VeryLazy',
-    config = function()
-      local ssr = require 'ssr'
-      vim.keymap.set('n', '<leader>rs', ssr.open, { desc = '[R]efactor: [S]tructural search and replace' })
-    end,
-  },
-
-  -- Spectre for project‑wide search and replace.  Opens a panel that lets
-  -- you preview and replace occurrences across files.  Launch it with
-  -- `<leader>sr`.
-  {
-    'nvim-pack/nvim-spectre',
-    event = 'VeryLazy',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      local spectre = require 'spectre'
-      vim.keymap.set('n', '<leader>sr', function()
-        spectre.open()
-      end, { desc = '[S]earch and [R]eplace (Spectre)' })
-    end,
-  },
-
-  -- Refactoring helpers.  Provides extract function/variable and inline
-  -- variable operations.  See https://github.com/ThePrimeagen/refactoring.nvim
-  -- for details.  Use the mappings below to trigger them in visual mode.
-  {
-    'ThePrimeagen/refactoring.nvim',
-    event = 'VeryLazy',
-    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-treesitter/nvim-treesitter' },
-    config = function()
-      require('refactoring').setup {}
-      -- Visual mode mappings
-      vim.keymap.set('v', '<leader>re', function()
-        require('refactoring').refactor 'Extract Function'
-      end, { desc = '[R]efactor [E]xtract Function' })
-      vim.keymap.set('v', '<leader>rv', function()
-        require('refactoring').refactor 'Extract Variable'
-      end, { desc = '[R]efactor Extract [V]ariable' })
-      vim.keymap.set('v', '<leader>ri', function()
-        require('refactoring').refactor 'Inline Variable'
-      end, { desc = '[R]efactor [I]nline Variable' })
-      -- Normal mode mapping to select a refactor operation interactively
-      vim.keymap.set('n', '<leader>rr', function()
-        require('refactoring').select_refactor()
-      end, { desc = '[R]efactor [R]efactor actions' })
-    end,
-  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -700,7 +624,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'python', 'yaml', 'go' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -769,9 +693,9 @@ require('lazy').setup({
 
 -- Add format
 -- Run gofmt + goimport on save
-local format_sync_grp = vim.api.nvim_create_augroup('GoImport', {})
-vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = '*.go',
+local format_sync_grp = vim.api.nvim_create_augroup("GoImport", {})
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.go",
   callback = function()
     require('go.format').goimport()
   end,
@@ -795,8 +719,5 @@ vim.keymap.set('n', '<leader>if', ':Git fetch ', { desc = 'G[i]t fetch' })
 
 -- Go shortcuts
 vim.keymap.set('n', '<leader>ie', ':GoIfErr<CR>', { desc = 'Go [i]f [e]rror != nil' })
--- Additional Go helpers
-vim.keymap.set('n', '<leader>gs', ':GoFillStruct<CR>', { desc = 'Go Fill [S]truct' })
-vim.keymap.set('n', '<leader>gt', ':GoTest<CR>', { desc = 'Go [T]est current package' })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
