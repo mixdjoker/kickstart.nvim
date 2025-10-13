@@ -435,7 +435,7 @@ require('nvim-treesitter.configs').setup {
   sync_install = true,
   ignore_install = {},
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim', 'html', 'javascript' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'html', 'javascript' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -595,34 +595,80 @@ require('mason').setup({
   }
 })
 
--- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
+require("mason-lspconfig").setup({
+  automatic_enable = true,  -- v2: автоматом вызывает vim.lsp.enable() для установленных серверов
+})
 
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
+
+local on_attach = function(_, _) end
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if ok_cmp then capabilities = cmp_lsp.default_capabilities(capabilities) end
+
+-- ваши настройки серверов (как и раньше)
+local servers = {
+  -- пример:
+  lua_ls = {
+    settings = { Lua = { diagnostics = { globals = { "vim" } } } },
+  },
+  gopls = {},
+  cssls = {},
+  cmake = {},
+  templ = {},
+  html = {},
+  htmx = {},
 }
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-    }
-  end,
-}
+-- NEW: конфигурации серверов через нативный API Neovim 0.11
+local lspconfig = require("lspconfig")
+for name, cfg in pairs(servers) do
+  vim.lsp.config(name, {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    settings = cfg.settings,
+    filetypes = cfg.filetypes,
+    root_dir  = cfg.root_dir,
+    cmd       = cfg.cmd,
+  })
+end
 
-require('lspconfig').html.setup({
+-- (необязательно) Явно включить только те, что вы описали выше:
+for name, _ in pairs(servers) do
+  vim.lsp.enable(name)
+end
+
+-- общие
+local on_attach = on_attach
+local capabilities = capabilities
+
+-- регистрируем конфиги
+vim.lsp.config("html", {
   on_attach = on_attach,
   capabilities = capabilities,
   filetypes = { "html", "templ" },
 })
 
-require('lspconfig').htmx.setup({
+vim.lsp.config("htmx", {
   on_attach = on_attach,
   capabilities = capabilities,
   filetypes = { "html", "templ" },
 })
+
+-- включаем сервер(а)
+vim.lsp.enable("html")
+vim.lsp.enable("htmx")
+
+-- require('lspconfig').html.setup({
+--   on_attach = on_attach,
+--   capabilities = capabilities,
+--   filetypes = { "html", "templ" },
+-- })
+
+-- require('lspconfig').htmx.setup({
+--   on_attach = on_attach,
+--   capabilities = capabilities,
+--   filetypes = { "html", "templ" },
+-- })
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
